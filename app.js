@@ -8,11 +8,19 @@ let quizResults = {
     total: 0
 };
 
+// Student Information
+let studentInfo = {
+    name: '',
+    matriculationNumber: '',
+    program: ''
+};
+
 // DOM Elements
 const homePage = document.getElementById('home-page');
 const courseSelection = document.getElementById('course-selection');
 const introWeekDetail = document.getElementById('intro-week-detail');
-const programSelection = document.getElementById('program-selection');
+const studentLogin = document.getElementById('student-login');
+const adminResults = document.getElementById('admin-results');
 const quizPage = document.getElementById('quiz-page');
 const resultsPage = document.getElementById('results-page');
 
@@ -50,29 +58,51 @@ document.getElementById('breadcrumb-introweek-link').addEventListener('click', (
 
 // Navigation: Select Your Master Program Button
 document.getElementById('select-program-btn').addEventListener('click', () => {
-    showPage('program-selection');
+    showPage('student-login');
 });
 
-// Program Dropdown Change Handler
-const programDropdown = document.getElementById('program-dropdown');
+// Navigation: Results link
+document.getElementById('nav-results').addEventListener('click', (e) => {
+    e.preventDefault();
+    showPage('admin-results');
+    loadResultsTable();
+});
+
+// Student Login Form Validation
+const studentNameInput = document.getElementById('student-name');
+const matriculationInput = document.getElementById('matriculation-number');
+const studentProgramSelect = document.getElementById('student-program');
 const startQuizBtn = document.getElementById('start-quiz-btn');
 
-programDropdown.addEventListener('change', (e) => {
-    const selectedProgram = e.target.value;
-    if (selectedProgram) {
+function validateLoginForm() {
+    const name = studentNameInput.value.trim();
+    const matriculation = matriculationInput.value.trim();
+    const program = studentProgramSelect.value;
+
+    if (name && matriculation && program) {
         startQuizBtn.disabled = false;
-        currentCourse = selectedProgram;
-        currentCourseName = quizData[selectedProgram].courseName;
     } else {
         startQuizBtn.disabled = true;
-        currentCourse = null;
-        currentCourseName = '';
     }
-});
+}
+
+studentNameInput.addEventListener('input', validateLoginForm);
+matriculationInput.addEventListener('input', validateLoginForm);
+studentProgramSelect.addEventListener('change', validateLoginForm);
 
 // Start Quiz Button Click
 startQuizBtn.addEventListener('click', () => {
-    if (currentCourse) {
+    studentInfo.name = studentNameInput.value.trim();
+    studentInfo.matriculationNumber = matriculationInput.value.trim();
+    studentInfo.program = studentProgramSelect.value;
+
+    if (studentInfo.name && studentInfo.matriculationNumber && studentInfo.program) {
+        currentCourse = studentInfo.program;
+        currentCourseName = quizData[studentInfo.program].courseName;
+
+        // Update user name in header
+        document.querySelector('.user-name').textContent = studentInfo.name;
+
         startQuiz(currentCourse);
     }
 });
@@ -295,6 +325,33 @@ function showResults() {
     } else {
         resultsIcon.style.color = 'var(--danger-color)';
     }
+
+    // Save result to localStorage
+    saveQuizResult(percentage);
+}
+
+// Save Quiz Result to LocalStorage
+function saveQuizResult(percentage) {
+    const result = {
+        timestamp: new Date().toISOString(),
+        name: studentInfo.name,
+        matriculationNumber: studentInfo.matriculationNumber,
+        program: studentInfo.program,
+        programName: currentCourseName,
+        score: quizResults.correct,
+        total: quizResults.total,
+        percentage: percentage,
+        passed: percentage >= 50
+    };
+
+    // Get existing results from localStorage
+    let allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+
+    // Add new result
+    allResults.push(result);
+
+    // Save back to localStorage
+    localStorage.setItem('quizResults', JSON.stringify(allResults));
 }
 
 // Review Answers Button
@@ -314,4 +371,126 @@ document.getElementById('restart-btn').addEventListener('click', () => {
     currentQuestionIndex = 0;
     userAnswers = [];
     quizResults = { correct: 0, total: 0 };
+
+    // Clear student login form
+    studentNameInput.value = '';
+    matriculationInput.value = '';
+    studentProgramSelect.value = '';
+    startQuizBtn.disabled = true;
+});
+
+// ========== ADMIN RESULTS PAGE ==========
+
+// Load Results Table
+function loadResultsTable(filterProgram = '') {
+    const allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+    const tableBody = document.getElementById('results-table-body');
+    const noResultsMessage = document.getElementById('no-results-message');
+
+    // Filter results if program is selected
+    const filteredResults = filterProgram
+        ? allResults.filter(r => r.program === filterProgram)
+        : allResults;
+
+    if (filteredResults.length === 0) {
+        tableBody.innerHTML = '';
+        noResultsMessage.style.display = 'block';
+        document.querySelector('.results-table-container').style.display = 'none';
+        return;
+    }
+
+    noResultsMessage.style.display = 'none';
+    document.querySelector('.results-table-container').style.display = 'block';
+
+    // Sort by timestamp (newest first)
+    filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    // Generate table rows
+    tableBody.innerHTML = filteredResults.map(result => {
+        const date = new Date(result.timestamp);
+        const formattedDate = date.toLocaleDateString('en-GB', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
+        });
+        const formattedTime = date.toLocaleTimeString('en-GB', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const statusClass = result.passed ? 'status-pass' : 'status-fail';
+        const statusText = result.passed ? 'Passed' : 'Failed';
+
+        return `
+            <tr>
+                <td>${formattedDate} ${formattedTime}</td>
+                <td>${result.name}</td>
+                <td>${result.matriculationNumber}</td>
+                <td>${result.programName}</td>
+                <td>${result.score}/${result.total}</td>
+                <td>${result.percentage}%</td>
+                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+            </tr>
+        `;
+    }).join('');
+}
+
+// Filter Results by Program
+document.getElementById('filter-program').addEventListener('change', (e) => {
+    loadResultsTable(e.target.value);
+});
+
+// Export Results to CSV
+document.getElementById('export-results-btn').addEventListener('click', () => {
+    const allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+
+    if (allResults.length === 0) {
+        alert('No results to export!');
+        return;
+    }
+
+    // Create CSV content
+    const headers = ['Date', 'Time', 'Name', 'Matriculation Number', 'Program', 'Score', 'Total', 'Percentage', 'Status'];
+    const csvRows = [headers.join(',')];
+
+    allResults.forEach(result => {
+        const date = new Date(result.timestamp);
+        const formattedDate = date.toLocaleDateString('en-GB');
+        const formattedTime = date.toLocaleTimeString('en-GB');
+        const status = result.passed ? 'Passed' : 'Failed';
+
+        const row = [
+            formattedDate,
+            formattedTime,
+            `"${result.name}"`,
+            result.matriculationNumber,
+            `"${result.programName}"`,
+            result.score,
+            result.total,
+            result.percentage + '%',
+            status
+        ];
+
+        csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+
+    // Create download link
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.setAttribute('href', url);
+    a.setAttribute('download', `quiz-results-${new Date().toISOString().split('T')[0]}.csv`);
+    a.click();
+    window.URL.revokeObjectURL(url);
+});
+
+// Clear All Results
+document.getElementById('clear-results-btn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to delete all quiz results? This action cannot be undone.')) {
+        localStorage.removeItem('quizResults');
+        loadResultsTable();
+        alert('All results have been cleared.');
+    }
 });
