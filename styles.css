@@ -55,6 +55,12 @@ body {
     align-items: center;
 }
 
+.logo-img {
+    height: 40px;
+    width: auto;
+    max-width: 120px;
+}
+
 .main-nav {
     display: flex;
     gap: 5px;
@@ -768,9 +774,9 @@ body {
         padding: 8px 0;
     }
 
-    .logo svg {
-        width: 35px;
+    .logo-img {
         height: 35px;
+        max-width: 100px;
     }
 
     .nav-link {
