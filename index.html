@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Quiz System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                        <circle cx="20" cy="20" r="18" fill="white" opacity="0.2"/>
+                        <path d="M20 8L28 16L20 24L12 16L20 8Z" fill="white"/>
+                    </svg>
+                </div>
+                <nav class="main-nav">
+                    <a href="#" class="nav-link active">Home</a>
+                    <a href="#" class="nav-link">My courses</a>
+                    <a href="#" class="nav-link">Help</a>
+                </nav>
+                <div class="user-info">
+                    <span class="user-name">Student</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container main-content">
+        <!-- Home/Landing Page -->
+        <div id="home-page" class="page active">
+            <h1 class="page-title">Hi, Student! 👋</h1>
+
+            <div class="welcome-section">
+                <div class="card welcome-card">
+                    <h2>Welcome to Introductory Week</h2>
+                    <p>Complete the mandatory test to assess your fundamentals knowledge</p>
+                    <button class="btn btn-primary" id="go-to-courses">Go to My Courses</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- My Courses Page (Shows Introductory Week) -->
+        <div id="course-selection" class="page">
+            <div class="breadcrumb">
+                <a href="#" id="breadcrumb-home">Home</a>
+            </div>
+
+            <h1 class="page-title">My courses</h1>
+            <h2 class="section-title">Course overview</h2>
+
+            <div class="course-grid">
+                <div class="course-card" id="intro-week-card">
+                    <div class="course-banner" style="background: linear-gradient(135deg, #1976d2, #1565c0);"></div>
+                    <div class="course-content">
+                        <h3>Introductory Week</h3>
+                        <p>Mandatory Test for All Programs</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Introductory Week Detail Page -->
+        <div id="intro-week-detail" class="page">
+            <div class="breadcrumb">
+                <a href="#" class="breadcrumb-link breadcrumb-home-link">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="#" class="breadcrumb-link breadcrumb-mycourses-link">My courses</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Introductory Week</span>
+            </div>
+
+            <h1 class="page-title">Introductory Week</h1>
+
+            <div class="course-sections">
+                <div class="section-card">
+                    <div class="section-header">
+                        <h3>general</h3>
+                    </div>
+                    <div class="section-content">
+                        <div class="activity-item">
+                            <span class="activity-icon">📢</span>
+                            <span>Announcements</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-card mandatory-test-section">
+                    <div class="section-header">
+                        <h3>Mandatory Test</h3>
+                    </div>
+                    <div class="section-content">
+                        <div class="activity-item clickable" id="select-program-btn">
+                            <span class="activity-icon">📝</span>
+                            <span>Select Your Master Program</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Master Program Selection Page -->
+        <div id="program-selection" class="page">
+            <div class="breadcrumb">
+                <a href="#" class="breadcrumb-link breadcrumb-home-link">Home</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="#" class="breadcrumb-link breadcrumb-mycourses-link">My courses</a>
+                <span class="breadcrumb-separator">/</span>
+                <a href="#" class="breadcrumb-link" id="breadcrumb-introweek-link">Introductory Week</a>
+                <span class="breadcrumb-separator">/</span>
+                <span>Mandatory Test</span>
+            </div>
+
+            <h1 class="page-title">Mandatory Test</h1>
+
+            <div class="card">
+                <h2>Select Your Master Program</h2>
+                <p class="instruction">Choose your program to begin the fundamentals assessment</p>
+
+                <div class="form-group">
+                    <label for="program-dropdown">Master Program:</label>
+                    <select id="program-dropdown" class="form-select">
+                        <option value="">-- Select a program --</option>
+                        <option value="iot">Computer Engineering for IoT System</option>
+                        <option value="ert">Environmental and Recycling Technology</option>
+                        <option value="res">Renewable Energy System</option>
+                        <option value="mecha">Mechatronics</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="start-quiz-btn" disabled>Start Assessment</button>
+            </div>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quiz-page" class="page">
+            <div class="quiz-header">
+                <div class="quiz-info">
+                    <span id="course-name"></span>
+                    <span class="separator">|</span>
+                    <span>Question <span id="current-question">1</span> of <span id="total-questions">10</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+            </div>
+
+            <div class="card quiz-card">
+                <div class="question-section">
+                    <h3 class="question-text" id="question-text"></h3>
+                    <div class="question-image" id="question-image"></div>
+                </div>
+
+                <div class="answers-section" id="answers-section">
+                    <!-- Answer options will be dynamically inserted -->
+                </div>
+
+                <div class="feedback-section" id="feedback-section">
+                    <!-- Feedback will be shown here -->
+                </div>
+
+                <div class="quiz-actions">
+                    <button class="btn btn-secondary" id="prev-btn">Previous</button>
+                    <button class="btn btn-primary" id="next-btn">Next Question</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="results-page" class="page">
+            <div class="card results-card">
+                <div class="results-icon">
+                    <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg>
+                </div>
+                <h2>Quiz Completed!</h2>
+                <div class="score-display">
+                    <div class="score-circle">
+                        <span id="score-percentage">0</span>%
+                    </div>
+                    <p class="score-text">
+                        You got <span id="correct-answers">0</span> out of <span id="total-answers">0</span> correct
+                    </p>
+                </div>
+                <div class="results-actions">
+                    <button class="btn btn-primary" id="review-btn">Review Answers</button>
+                    <button class="btn btn-secondary" id="restart-btn">Try Another Course</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="quizData.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
