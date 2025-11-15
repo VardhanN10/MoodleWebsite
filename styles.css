@@ -616,23 +616,209 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .header h1 {
-        font-size: 1.5rem;
+    /* Header adjustments */
+    .header-content {
+        flex-wrap: wrap;
+        gap: 10px;
     }
 
+    .main-nav {
+        gap: 2px;
+    }
+
+    .nav-link {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .user-info {
+        font-size: 0.8rem;
+    }
+
+    /* Main content padding */
+    .main-content {
+        padding: 20px 15px;
+    }
+
+    /* Page titles */
+    .page-title {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    /* Cards */
+    .card {
+        padding: 20px 15px;
+    }
+
+    /* Course grid */
     .course-grid {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
 
+    /* Quiz header */
+    .quiz-header {
+        padding: 15px;
+    }
+
+    .quiz-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+        font-size: 0.9rem;
+    }
+
+    .separator {
+        display: none;
+    }
+
+    /* Question text */
+    .question-text {
+        font-size: 1.1rem;
+    }
+
+    /* Answer options */
+    .answer-option {
+        padding: 12px 15px;
+    }
+
+    .answer-text {
+        font-size: 0.95rem;
+    }
+
+    /* Buttons */
     .quiz-actions {
         flex-direction: column;
     }
 
     .results-actions {
         flex-direction: column;
+        width: 100%;
     }
 
     .btn {
         width: 100%;
+    }
+
+    /* Results page */
+    .results-card {
+        padding: 30px 20px;
+    }
+
+    .results-card h2 {
+        font-size: 1.5rem;
+    }
+
+    .score-circle {
+        width: 140px;
+        height: 140px;
+        font-size: 2.5rem;
+    }
+
+    .score-text {
+        font-size: 1rem;
+    }
+
+    /* Feedback section */
+    .feedback-section {
+        padding: 15px;
+    }
+
+    .feedback-header {
+        font-size: 1rem;
+    }
+
+    .feedback-explanation {
+        font-size: 0.95rem;
+    }
+
+    /* Form elements */
+    #program-selection .card h2 {
+        font-size: 1.3rem;
+    }
+
+    .instruction {
+        font-size: 0.95rem;
+    }
+
+    /* Activity items */
+    .activity-item {
+        padding: 12px 15px;
+    }
+
+    /* Section headers */
+    .section-header h3 {
+        font-size: 1rem;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        font-size: 0.8rem;
+    }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+    .header-content {
+        padding: 8px 0;
+    }
+
+    .logo svg {
+        width: 35px;
+        height: 35px;
+    }
+
+    .nav-link {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .page-title {
+        font-size: 1.3rem;
+    }
+
+    .question-text {
+        font-size: 1rem;
+    }
+
+    .answer-option {
+        padding: 10px 12px;
+    }
+
+    .answer-text {
+        font-size: 0.9rem;
+    }
+
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        font-size: 2rem;
+    }
+
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Landscape orientation on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .main-content {
+        padding: 15px 10px;
+    }
+
+    .score-circle {
+        width: 120px;
+        height: 120px;
+        font-size: 2rem;
+    }
+
+    .results-card {
+        padding: 20px 15px;
     }
 }
