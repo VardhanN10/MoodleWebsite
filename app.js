@@ -432,58 +432,88 @@ document.getElementById('restart-btn').addEventListener('click', () => {
 
 // ========== ADMIN RESULTS PAGE ==========
 
-// Load Results Table
-function loadResultsTable(filterProgram = '') {
-    const allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
+// Global variable to store fetched results
+let cachedResults = [];
+
+// Load Results Table from Google Sheets
+async function loadResultsTable(filterProgram = '') {
     const tableBody = document.getElementById('results-table-body');
     const noResultsMessage = document.getElementById('no-results-message');
 
-    // Filter results if program is selected
-    const filteredResults = filterProgram
-        ? allResults.filter(r => r.program === filterProgram)
-        : allResults;
-
-    if (filteredResults.length === 0) {
-        tableBody.innerHTML = '';
-        noResultsMessage.style.display = 'block';
-        document.querySelector('.results-table-container').style.display = 'none';
-        return;
-    }
-
+    // Show loading message
+    tableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">⏳ Loading results from Google Sheets...</td></tr>';
     noResultsMessage.style.display = 'none';
     document.querySelector('.results-table-container').style.display = 'block';
 
-    // Sort by timestamp (newest first)
-    filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    try {
+        // Fetch results from Google Sheets
+        const response = await fetch(GOOGLE_SHEETS_URL);
+        const data = await response.json();
 
-    // Generate table rows
-    tableBody.innerHTML = filteredResults.map(result => {
-        const date = new Date(result.timestamp);
-        const formattedDate = date.toLocaleDateString('en-GB', {
-            day: '2-digit',
-            month: '2-digit',
-            year: 'numeric'
-        });
-        const formattedTime = date.toLocaleTimeString('en-GB', {
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+        if (data.status === 'success' && data.data) {
+            cachedResults = data.data;
+        } else {
+            throw new Error('Failed to fetch results');
+        }
 
-        const statusClass = result.passed ? 'status-pass' : 'status-fail';
-        const statusText = result.passed ? 'Passed' : 'Failed';
+        // Filter results if program is selected
+        const filteredResults = filterProgram
+            ? cachedResults.filter(r => r.programName && r.programName.toLowerCase().includes(filterProgram.toLowerCase()))
+            : cachedResults;
 
-        return `
+        if (filteredResults.length === 0) {
+            tableBody.innerHTML = '';
+            noResultsMessage.style.display = 'block';
+            document.querySelector('.results-table-container').style.display = 'none';
+            return;
+        }
+
+        noResultsMessage.style.display = 'none';
+        document.querySelector('.results-table-container').style.display = 'block';
+
+        // Sort by timestamp (newest first)
+        filteredResults.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+        // Generate table rows
+        tableBody.innerHTML = filteredResults.map(result => {
+            const date = new Date(result.timestamp);
+            const formattedDate = date.toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+            const formattedTime = date.toLocaleTimeString('en-GB', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const statusClass = result.passed ? 'status-pass' : 'status-fail';
+            const statusText = result.passed ? 'Passed' : 'Failed';
+
+            return `
+                <tr>
+                    <td>${formattedDate} ${formattedTime}</td>
+                    <td>${result.name}</td>
+                    <td>${result.matriculationNumber}</td>
+                    <td>${result.programName}</td>
+                    <td>${result.score}/${result.total}</td>
+                    <td>${result.percentage}%</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (error) {
+        console.error('Error loading results:', error);
+        tableBody.innerHTML = `
             <tr>
-                <td>${formattedDate} ${formattedTime}</td>
-                <td>${result.name}</td>
-                <td>${result.matriculationNumber}</td>
-                <td>${result.programName}</td>
-                <td>${result.score}/${result.total}</td>
-                <td>${result.percentage}%</td>
-                <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                <td colspan="7" style="text-align: center; padding: 20px; color: #d9534f;">
+                    ❌ Failed to load results from Google Sheets.<br>
+                    <small>Make sure your Google Apps Script is updated and deployed.</small>
+                </td>
             </tr>
         `;
-    }).join('');
+    }
 }
 
 // Filter Results by Program
@@ -493,10 +523,8 @@ document.getElementById('filter-program').addEventListener('change', (e) => {
 
 // Export Results to CSV
 document.getElementById('export-results-btn').addEventListener('click', () => {
-    const allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
-
-    if (allResults.length === 0) {
-        alert('No results to export!');
+    if (cachedResults.length === 0) {
+        alert('No results to export! Please load the results page first.');
         return;
     }
 
@@ -504,7 +532,7 @@ document.getElementById('export-results-btn').addEventListener('click', () => {
     const headers = ['Date', 'Time', 'Name', 'Matriculation Number', 'Program', 'Score', 'Total', 'Percentage', 'Status'];
     const csvRows = [headers.join(',')];
 
-    allResults.forEach(result => {
+    cachedResults.forEach(result => {
         const date = new Date(result.timestamp);
         const formattedDate = date.toLocaleDateString('en-GB');
         const formattedTime = date.toLocaleTimeString('en-GB');
@@ -539,9 +567,5 @@ document.getElementById('export-results-btn').addEventListener('click', () => {
 
 // Clear All Results
 document.getElementById('clear-results-btn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to delete all quiz results? This action cannot be undone.')) {
-        localStorage.removeItem('quizResults');
-        loadResultsTable();
-        alert('All results have been cleared.');
-    }
+    alert('⚠️ To clear results, please open your Google Sheet and manually delete the rows.\n\nYour Google Sheet URL is in your bookmarks or Google Drive.');
 });
