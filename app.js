@@ -1,3 +1,7 @@
+// ⚠️ IMPORTANT: Add your Google Sheets Web App URL here after setup
+// Follow instructions in GOOGLE_SHEETS_SETUP.md to get your URL
+const GOOGLE_SHEETS_URL = 'YOUR_GOOGLE_SHEETS_URL_HERE';
+
 // Quiz Application State
 let currentCourse = null;
 let currentCourseName = '';
@@ -330,7 +334,7 @@ function showResults() {
     saveQuizResult(percentage);
 }
 
-// Save Quiz Result to LocalStorage
+// Save Quiz Result to LocalStorage and Google Sheets
 function saveQuizResult(percentage) {
     const result = {
         timestamp: new Date().toISOString(),
@@ -344,14 +348,39 @@ function saveQuizResult(percentage) {
         passed: percentage >= 50
     };
 
-    // Get existing results from localStorage
+    // Save to localStorage (for student to view their own results)
     let allResults = JSON.parse(localStorage.getItem('quizResults') || '[]');
-
-    // Add new result
     allResults.push(result);
-
-    // Save back to localStorage
     localStorage.setItem('quizResults', JSON.stringify(allResults));
+
+    // Send to Google Sheets (for admin to view all results)
+    sendToGoogleSheets(result);
+}
+
+// Send Quiz Result to Google Sheets
+function sendToGoogleSheets(result) {
+    // Check if Google Sheets URL is configured
+    if (!GOOGLE_SHEETS_URL || GOOGLE_SHEETS_URL === 'YOUR_GOOGLE_SHEETS_URL_HERE') {
+        console.log('Google Sheets URL not configured. Results saved locally only.');
+        return;
+    }
+
+    // Send data to Google Sheets
+    fetch(GOOGLE_SHEETS_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Important for Google Apps Script
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(result)
+    })
+    .then(() => {
+        console.log('✅ Result sent to Google Sheets successfully!');
+    })
+    .catch(error => {
+        console.error('❌ Error sending to Google Sheets:', error);
+        // Results are still saved in localStorage even if Google Sheets fails
+    });
 }
 
 // Review Answers Button
