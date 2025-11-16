@@ -1,6 +1,6 @@
 // ⚠️ IMPORTANT: Add your Google Sheets Web App URL here after setup
 // Follow instructions in GOOGLE_SHEETS_SETUP.md to get your URL
-const GOOGLE_SHEETS_URL = 'YOUR_GOOGLE_SHEETS_URL_HERE';
+const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxZbrbabfm96ZYCWJI0-OAGN0f6be_r9F_u9f8Kn0PFakpS1NiMsGuHNiAPeNln2jYf/exec';
 
 // Quiz Application State
 let currentCourse = null;
