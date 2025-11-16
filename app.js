@@ -2,6 +2,9 @@
 // Follow instructions in GOOGLE_SHEETS_SETUP.md to get your URL
 const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxZbrbabfm96ZYCWJI0-OAGN0f6be_r9F_u9f8Kn0PFakpS1NiMsGuHNiAPeNln2jYf/exec';
 
+// ⚠️ ADMIN PASSWORD: Change this to your desired password
+const ADMIN_PASSWORD = 'admin123';
+
 // Quiz Application State
 let currentCourse = null;
 let currentCourseName = '';
@@ -65,12 +68,31 @@ document.getElementById('select-program-btn').addEventListener('click', () => {
     showPage('student-login');
 });
 
-// Navigation: Results link
-document.getElementById('nav-results').addEventListener('click', (e) => {
-    e.preventDefault();
-    showPage('admin-results');
-    loadResultsTable();
+// Admin Access: Press Ctrl+Shift+R to access Results page (password protected)
+document.addEventListener('keydown', (e) => {
+    // Ctrl+Shift+R opens admin results page
+    if (e.ctrlKey && e.shiftKey && e.key === 'R') {
+        e.preventDefault();
+        accessAdminResults();
+    }
 });
+
+// Function to access admin results with password protection
+function accessAdminResults() {
+    const password = prompt('Enter admin password to view results:');
+
+    if (password === null) {
+        // User clicked cancel
+        return;
+    }
+
+    if (password === ADMIN_PASSWORD) {
+        showPage('admin-results');
+        loadResultsTable();
+    } else {
+        alert('❌ Incorrect password! Access denied.');
+    }
+}
 
 // Student Login Form Validation
 const studentNameInput = document.getElementById('student-name');
