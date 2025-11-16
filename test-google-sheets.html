@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google Sheets Connection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f4f4f4;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #0f6cbf;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #0a5294;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Test Google Sheets Connection</h1>
+        <p>Click the button below to test if your Google Sheets integration is working.</p>
+        <button onclick="testGoogleSheets()">Send Test Data to Google Sheets</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const GOOGLE_SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxZbrbabfm96ZYCWJI0-OAGN0f6be_r9F_u9f8Kn0PFakpS1NiMsGuHNiAPeNln2jYf/exec';
+
+        function testGoogleSheets() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'info';
+            resultDiv.innerHTML = '⏳ Sending test data to Google Sheets...';
+
+            const testData = {
+                timestamp: new Date().toISOString(),
+                name: 'TEST USER',
+                matriculationNumber: 'TEST123',
+                program: 'iot',
+                programName: 'Computer Engineering for IoT System',
+                score: 7,
+                total: 10,
+                percentage: 70,
+                passed: true
+            };
+
+            console.log('Sending test data:', testData);
+
+            fetch(GOOGLE_SHEETS_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(() => {
+                console.log('✅ Test data sent successfully!');
+                resultDiv.className = 'success';
+                resultDiv.innerHTML = `
+                    <strong>✅ Success!</strong><br><br>
+                    Test data has been sent to Google Sheets.<br><br>
+                    <strong>Next steps:</strong><br>
+                    1. Check your Google Sheet<br>
+                    2. You should see a new row with "TEST USER"<br>
+                    3. If you see it, the integration is working!<br><br>
+                    <em>Note: It may take a few seconds to appear.</em>
+                `;
+            })
+            .catch(error => {
+                console.error('❌ Error:', error);
+                resultDiv.className = 'error';
+                resultDiv.innerHTML = `
+                    <strong>❌ Error!</strong><br><br>
+                    Could not send data to Google Sheets.<br>
+                    Error: ${error.message}<br><br>
+                    <strong>Check:</strong><br>
+                    1. Is your Google Apps Script deployed?<br>
+                    2. Did you set "Who has access" to "Anyone"?<br>
+                    3. Check the browser console (F12) for details.
+                `;
+            });
+        }
+    </script>
+</body>
+</html>
